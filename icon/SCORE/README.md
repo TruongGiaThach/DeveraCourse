@@ -70,8 +70,8 @@ $ ./gradlew irc2:deployToLocal -PkeystoreName=./godWallet.json -PkeystorePass=go
 >>> deploy to http://localhost:9082/api/v3
 >>> optimizedJar = /Users/leclevietnam/mwork/DeveraCourse/icon/SCORE/irc2/build/libs/IRC2BurnableToken-0.1.0-optimized.jar
 >>> keystore = ./godWallet.json
-Succeeded to deploy: 0x08ad84fe012811ce9cc574d35edee6ab05ff9cf7187f6db14e51062a233e8df7
-SCORE address: cxfdbc7aca1f4ba6d37d4f80eb112d0e62f0727280
+Succeeded to deploy: 0xfb4087116dd4ef042a8c12451d40e8f2b5d2481935ef4ea5a9b0a1f92ea94d73
+SCORE address: cx4b0202039cd13fdc146caa222e9d886d1acafb3a
 
 BUILD SUCCESSFUL in 4s
 1 actionable task: 1 executed

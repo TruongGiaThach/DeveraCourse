@@ -22,7 +22,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 class CrowdsaleTest extends TestBase {
-    // sample-token
+  /*  // sample-token
     private static final String name = "MySampleToken";
     private static final String symbol = "MST";
     private static final int decimals = 18;
@@ -112,4 +112,5 @@ class CrowdsaleTest extends TestBase {
         assertEquals(withdrawAmount, Account.getAccount(owner.getAddress()).getBalance());
         assertEquals(ICX.multiply(fundingGoalInICX).subtract(withdrawAmount), crowdsaleScore.call("amountRaised"));
     }
+    */
 }
