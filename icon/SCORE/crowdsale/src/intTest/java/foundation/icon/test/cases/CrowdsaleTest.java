@@ -40,11 +40,13 @@ class CrowdsaleTest extends TestBase {
     private static TransactionHandler txHandler;
     private static KeyWallet[] wallets;
     private static KeyWallet ownerWallet;
+    private static IconService iconService;
+    
 
     @BeforeAll
     static void setup() throws Exception {
         Env.Chain chain = Env.getDefaultChain();
-        IconService iconService = new IconService(new HttpProvider(chain.getEndpointURL(3)));
+        iconService = new IconService(new HttpProvider(chain.getEndpointURL(3)));
         txHandler = new TransactionHandler(iconService, chain);
 
         // init wallets
@@ -108,7 +110,26 @@ class CrowdsaleTest extends TestBase {
         for (int i = 1; i < wallets.length; i++) {
             crowdsaleScore.ensureRollCall(wallets[i]);
         }
+        crowdsaleScore.closeRollCall(teacher);
+
+        // second class
+        crowdsaleScore.ensureOpenRoll(teacher);
+        crowdsaleScore.ensureRollCall(A_Wallet);
+        crowdsaleScore.closeRollCall(teacher);
         LOG.infoExiting();
+        // student balance before refund
+        LOG.infoEntering("Refund to paticipants: ");
+        LOG.info("Balance of each students: ");
+        for (int i = 1; i < wallets.length; i++) {
+            BigInteger _balance = iconService.getBalance(wallets[i].getAddress()).execute();
+            LOG.info(wallets[i].getAddress() + ": " + _balance.toString() ) ;
+        };
+        crowdsaleScore.withdraw(teacher);
+        LOG.info("Balance of each students after refund: ");
+        for (int i = 1; i < wallets.length; i++) {
+            BigInteger _balance = iconService.getBalance(wallets[i].getAddress()).execute();
+            LOG.info(wallets[i].getAddress() + ": " + _balance.toString() ) ;
+        };
         
 
 /*
