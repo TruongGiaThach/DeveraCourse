@@ -26,7 +26,6 @@ import foundation.icon.test.Env;
 import foundation.icon.test.TestBase;
 import foundation.icon.test.TransactionHandler;
 import foundation.icon.test.score.CrowdSaleScore;
-import foundation.icon.test.score.SampleTokenScore;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -49,7 +48,7 @@ class CrowdsaleTest extends TestBase {
         txHandler = new TransactionHandler(iconService, chain);
 
         // init wallets
-        wallets = new KeyWallet[3];
+        wallets = new KeyWallet[4];
         BigInteger amount = ICX.multiply(BigInteger.valueOf(200));
         for (int i = 0; i < wallets.length; i++) {
             wallets[i] = KeyWallet.create();
@@ -70,48 +69,49 @@ class CrowdsaleTest extends TestBase {
 
     @Test
     void deployAndStartCrowdsale() throws Exception {
-        // deploy token SCORE
-        BigInteger decimals = BigInteger.valueOf(18);
-        BigInteger initialSupply = BigInteger.valueOf(1000);
-        BigInteger durationInBlocks = BigInteger.valueOf(10);
-        BigInteger tokenPrice = BigInteger.valueOf(10);
-        SampleTokenScore tokenScore = SampleTokenScore.mustDeploy(txHandler, ownerWallet,
-                decimals, initialSupply);
+        // deploy SCORE
+        BigInteger _tuition = BigInteger.valueOf(10);
+        BigInteger _numberOfLesson = BigInteger.valueOf(2);
+        BigInteger _durationInDefault = BigInteger.valueOf(3600);
 
-        // deploy crowdsale SCORE
-        BigInteger fundingGoalInIcx = BigInteger.valueOf(100);
         CrowdSaleScore crowdsaleScore = CrowdSaleScore.mustDeploy(txHandler, ownerWallet,
-                tokenScore.getAddress(), fundingGoalInIcx,  durationInBlocks, tokenPrice);
-
-        startCrowdsale(tokenScore, crowdsaleScore, initialSupply, fundingGoalInIcx, tokenPrice);
+                _tuition, _numberOfLesson, _durationInDefault);
+    
+        startCrowdsale(crowdsaleScore, _tuition , _numberOfLesson, _durationInDefault);
     }
 
-    void startCrowdsale(SampleTokenScore tokenScore, CrowdSaleScore crowdsaleScore,
-                        BigInteger initialSupply, BigInteger fundingGoalInIcx, BigInteger tokenPrice) throws Exception {
-        KeyWallet aliceWallet = wallets[1];
-        KeyWallet bobWallet = wallets[2];
+    void startCrowdsale( CrowdSaleScore crowdsaleScore,
+                BigInteger _tuition, BigInteger _numberOfLesson,BigInteger _durationInDefault) throws Exception {
+        KeyWallet A_Wallet = wallets[1];
+        KeyWallet B_Wallet = wallets[2];
+        KeyWallet C_Wallet = wallets[3];
+        KeyWallet teacher = wallets[0];
 
-        // transfer all tokens to crowdsale score
-        LOG.infoEntering("transfer token", "all tokens to crowdsale score from owner");
-        TransactionResult result = tokenScore.transfer(ownerWallet, crowdsaleScore.getAddress(), ICX.multiply(initialSupply));
-        crowdsaleScore.ensureFundingGoal(result, fundingGoalInIcx);
-        tokenScore.ensureTokenBalance(crowdsaleScore.getAddress(), initialSupply);
-        LOG.infoExiting();
 
-        // send icx to crowdsale score from Alice and Bob
+        // register the course for A and B
         LOG.infoEntering("transfer icx", "to crowdsale score (40 from Alice, 60 from Bob)");
         Bytes[] ids = new Bytes[2];
         BigInteger aliceDepositIcxAmount = BigInteger.valueOf(40);
         BigInteger bobDepositIcxAmount = BigInteger.valueOf(60);
-        ids[0] = txHandler.transfer(aliceWallet, crowdsaleScore.getAddress(), ICX.multiply(aliceDepositIcxAmount));
-        ids[1] = txHandler.transfer(bobWallet, crowdsaleScore.getAddress(), ICX.multiply(bobDepositIcxAmount));
+        ids[0] = txHandler.transfer(A_Wallet, crowdsaleScore.getAddress(), ICX.multiply(aliceDepositIcxAmount));
+        ids[1] = txHandler.transfer(B_Wallet, crowdsaleScore.getAddress(), ICX.multiply(bobDepositIcxAmount));
         for (Bytes id : ids) {
             assertSuccess(txHandler.getResult(id));
         }
-        tokenScore.ensureTokenBalance(aliceWallet.getAddress(), aliceDepositIcxAmount.multiply(tokenPrice));
-        tokenScore.ensureTokenBalance(bobWallet.getAddress(), bobDepositIcxAmount.multiply(tokenPrice));
+        crowdsaleScore.ensureTuitionBalance(A_Wallet.getAddress(),40);
+        crowdsaleScore.ensureTuitionBalance(B_Wallet.getAddress(),60);
         LOG.infoExiting();
+        
+        LOG.infoEntering("Begin course ");
+        // first class
+        crowdsaleScore.ensureOpenRoll(teacher);
+        for (int i = 1; i < wallets.length; i++) {
+            crowdsaleScore.ensureRollCall(wallets[i]);
+        }
+        LOG.infoExiting();
+        
 
+/*
         // do safe withdrawal
         LOG.infoEntering("call", "withdraw()");
         BigInteger withdrawAmount = ICX.multiply(BigInteger.valueOf(30));
@@ -137,5 +137,6 @@ class CrowdsaleTest extends TestBase {
         ensureIcxBalance(txHandler, ownerWallet.getAddress(), oldBal, newBal);
         assertEquals(ICX.multiply(BigInteger.valueOf(70)), crowdsaleScore.amountRaised());
         LOG.infoExiting();
+        */
     }
 }

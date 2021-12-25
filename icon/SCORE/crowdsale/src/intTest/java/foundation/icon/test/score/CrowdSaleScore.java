@@ -34,15 +34,14 @@ import static foundation.icon.test.Env.LOG;
 
 public class CrowdSaleScore extends Score {
 
-    public static CrowdSaleScore mustDeploy(TransactionHandler txHandler, Wallet wallet,
-                                            Address tokenAddress, BigInteger fundingGoalInIcx, BigInteger durationInBlocks, BigInteger tokenPrice)
+    public static CrowdSaleScore mustDeploy(TransactionHandler txHandler, Wallet wallet
+        ,BigInteger _tuition, BigInteger _numberOfLesson,BigInteger _durationInDefault)
             throws ResultTimeoutException, TransactionFailureException, IOException {
         LOG.infoEntering("deploy", "Crowdsale");
         RpcObject params = new RpcObject.Builder()
-                .put("_fundingGoalInIcx", new RpcValue(fundingGoalInIcx))
-                .put("_tokenScore", new RpcValue(tokenAddress))
-                .put("_durationInBlocks", new RpcValue(durationInBlocks))
-                .put("_tokenPrice", new RpcValue(BigInteger.valueOf(10)))
+                .put("_tuition", new RpcValue(_tuition))
+                .put("_numberOfLesson", new RpcValue(_numberOfLesson))
+                .put("_durationInDefault", new RpcValue(_durationInDefault))
                 .build();
         Score score = txHandler.deploy(wallet, getFilePath("crowdsale"), params);
         LOG.info("scoreAddr = " + score.getAddress());
@@ -53,91 +52,111 @@ public class CrowdSaleScore extends Score {
     public CrowdSaleScore(Score other) {
         super(other);
     }
-
-    public TransactionResult withdraw(Wallet wallet, BigInteger value, String description)
+    public TransactionResult openRollCall(Wallet wallet)
             throws ResultTimeoutException, IOException {
         RpcObject params = new RpcObject.Builder()
-            .put("_value", new RpcValue(value))
-            .put("_description", new RpcValue(description))
+            .build();
+        return invokeAndWaitResult(wallet, "openRollCall", params);
+    }
+    public TransactionResult closeRollCall(Wallet wallet)
+            throws ResultTimeoutException, IOException {
+        RpcObject params = new RpcObject.Builder()
+            .build();
+        return invokeAndWaitResult(wallet, "closeRollCall", params);
+    }
+    public TransactionResult rollCall(Wallet wallet)
+            throws ResultTimeoutException, IOException {
+        RpcObject params = new RpcObject.Builder()
+            .build();
+        return invokeAndWaitResult(wallet, "rollCall", params);
+    }
+    public TransactionResult withdraw(Wallet wallet)
+            throws ResultTimeoutException, IOException {
+        RpcObject params = new RpcObject.Builder()
             .build();
         return invokeAndWaitResult(wallet, "withdraw", params);
     }
-
-    public TransactionResult executeWithdrawal(Wallet wallet)
-        throws ResultTimeoutException, IOException {
-        RpcObject params = new RpcObject.Builder()
-            .build();
-        return invokeAndWaitResult(wallet, "executeWithdrawal", params);
-    }
-
-    public TransactionResult voteWithdrawal(Wallet wallet)
-    throws ResultTimeoutException, IOException {
-        RpcObject params = new RpcObject.Builder()
-            .build();
-        return invokeAndWaitResult(wallet, "voteWithdrawal", params);
-    }
-
     public BigInteger amountRaised()
             throws ResultTimeoutException, IOException {
         return this.call("amountRaised", null).asInteger();
     }
-
-    public void ensureWithdrawal(BigInteger checkingAmount, BigInteger checkingWeight, String checkingDescription)
-        throws IOException {
-        RpcObject withdrawal = this.call("withdrawal", null).asObject();
-        BigInteger amount = new BigInteger(withdrawal.getItem("_amount").toString());
-        BigInteger weight = new BigInteger(withdrawal.getItem("_approvedWeight").toString());
-        String description = withdrawal.getItem("_description").asString();
-
-        if (!checkingAmount.equals(amount)) {
-            throw new IOException("withdrawal amount is invalid");
-        }
-
-        if (!checkingWeight.equals(weight)) {
-            throw new IOException("withdrawal amount is invalid");
-        }
-
-        if (!checkingDescription.equals(description)) {
-            throw new IOException("withdrawal description is invalid");
-        }
+    public Boolean isOpenRollCall()
+            throws ResultTimeoutException, IOException {
+        return this.call("isOpenRollCall", null).asBoolean();
     }
-
-    public void ensureFundingGoal(TransactionResult result, BigInteger fundingGoalInIcx)
-            throws IOException {
-        TransactionResult.EventLog event = findEventLog(result, getAddress(), "CrowdsaleStarted(int,int)");
-        if (event != null) {
-            BigInteger fundingGoalInLoop = IconAmount.of(fundingGoalInIcx, IconAmount.Unit.ICX).toLoop();
-            BigInteger fundingGoalFromScore = event.getData().get(0).asInteger();
-            if (fundingGoalInLoop.equals(fundingGoalFromScore)) {
-                return; // ensured
+    public BigInteger balanceOf(Address owner) throws IOException {
+        RpcObject params = new RpcObject.Builder()
+                .put("_owner", new RpcValue(owner))
+                .build();
+        return call("balanceOf", params).asInteger();
+    }
+    public void ensureTuitionBalance(Address owner, long value) throws ResultTimeoutException, IOException {
+        long limitTime = System.currentTimeMillis() + Constants.DEFAULT_WAITING_TIME;
+        while (true) {
+            BigInteger balance = balanceOf(owner);
+            String msg = "ICX balance of " + owner + "in course: " + balance;
+            if (balance.equals(BigInteger.valueOf(0))) {
+                try {
+                    if (limitTime < System.currentTimeMillis()) {
+                        throw new ResultTimeoutException();
+                    }
+                    // wait until block confirmation
+                    LOG.info(msg + "; Retry in 1 sec.");
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            } else if (balance.equals(BigInteger.valueOf(value).multiply(BigInteger.TEN.pow(18)))) {
+                LOG.info(msg);
+                break;
+            } else {
+                throw new IOException("ICX balance mismatch!");
             }
         }
-        throw new IOException("ensureFundingGoal failed.");
+    }
+    public void ensureOpenRoll(Wallet wallet) throws Exception {
+        while (true) {
+            TransactionResult result = openRollCall(wallet);
+            if (!Constants.STATUS_SUCCESS.equals(result.getStatus())) {
+                throw new IOException("Failed to execute open roll call.");
+            }
+            TransactionResult.EventLog event = findEventLog(result, getAddress(), "ActiveCourse(Address,int)");
+            if (event != null) {
+                BigInteger _amount = event.getIndexed().get(2).asInteger();
+                LOG.info("class is open: " + _amount.toString());
+
+                break;
+            }
+            LOG.info("Sleep 1 second.");
+            Thread.sleep(1000);
+        }
+    }
+    public void ensureRollCall(Wallet wallet) throws Exception {
+        while (true) {
+            TransactionResult result = rollCall(wallet);
+            if (!Constants.STATUS_SUCCESS.equals(result.getStatus())) {
+                throw new IOException("Failed to execute roll call.");
+            }
+            TransactionResult.EventLog event = findEventLog(result, getAddress(), "RollCall(Address,int)");
+            if (event != null) {
+                Address _address = event.getIndexed().get(1).asAddress();
+                BigInteger _amount = event.getIndexed().get(2).asInteger();
+                LOG.info(_address.toString() + " rollcall. " + "Total of this student: " + _amount.toString());
+
+                break;
+            }
+            TransactionResult.EventLog _event = findEventLog(result, getAddress(), "FailRollCall(Address)");
+            if (_event != null) {
+                
+                LOG.info(wallet.getAddress() + " rollcall." + " Fail to roll call");
+
+                break;
+            }
+            LOG.info("Sleep 1 second.");
+            Thread.sleep(1000);
+        }
     }
 
-    public void ensureFundDeposit(TransactionResult result, Address backer, BigInteger amount)
-            throws IOException {
-        TransactionResult.EventLog event = findEventLog(result, getAddress(), "FundDeposit(Address,int)");
-        if (event != null) {
-            Address _backer = event.getIndexed().get(1).asAddress();
-            BigInteger _amount = event.getIndexed().get(2).asInteger();
-            if (backer.equals(_backer) && amount.equals(_amount)) {
-                return; // ensured
-            }
-        }
-        throw new IOException("ensureFundDeposit failed.");
-    }
 
-    public void ensureFundWithdraw(TransactionResult result, Address backer, BigInteger amount)
-            throws IOException {
-        TransactionResult.EventLog event = findEventLog(result, getAddress(), "FundWithdraw(Address,int)");
-        if (event != null) {
-            Address _backer = event.getIndexed().get(1).asAddress();
-            BigInteger _amount = event.getIndexed().get(2).asInteger();
-            if (backer.equals(_backer) && amount.equals(_amount)) {
-                return; // ensured
-            }
-        }
-        throw new IOException("ensureFundDeposit failed.");
-    }
+    
 }
