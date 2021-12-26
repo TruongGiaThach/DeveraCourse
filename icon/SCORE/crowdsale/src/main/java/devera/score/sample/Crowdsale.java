@@ -130,9 +130,10 @@ public class Crowdsale
             return "false";
 
         long _require = this.numberOfLesson.longValue();
-        double _tmp = StrictMath.ceil(_require * 80 / 100); 
+        double _tmp = (double)(_require * 0.8); 
+        _tmp = StrictMath.ceil(_tmp);
         _require = StrictMath.round(_tmp);
-        return String.valueOf(_require);
+        return String.valueOf(_tmp);
         //balance 
         /*
         BigInteger _studentTuition = this.safeGetBalance(_from);
