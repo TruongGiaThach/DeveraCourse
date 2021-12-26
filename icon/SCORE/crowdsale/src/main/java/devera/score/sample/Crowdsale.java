@@ -11,6 +11,8 @@ import score.annotation.Payable;
 
 import java.math.BigInteger;
 import java.util.Map;
+import java.lang.StrictMath;
+
 
 import scorex.util.ArrayList;
 
@@ -120,17 +122,38 @@ public class Crowdsale
         // emit eventlog
         Registration(_from, _value);
     }
-    
+    @External(readonly=true)
+    public String test(Address _from){
+        //counter
+        BigInteger _studentCounter = this.safeGetCounter(_from);
+        if (_studentCounter.compareTo(BigInteger.ZERO) <= 0)
+            return "false";
+
+        long _require = this.numberOfLesson.longValue();
+        double _tmp = StrictMath.ceil(_require * 80 / 100); 
+        _require = StrictMath.round(_tmp);
+        return String.valueOf(_require);
+        //balance 
+        /*
+        BigInteger _studentTuition = this.safeGetBalance(_from);
+        Boolean _checkBalance = (_studentTuition.compareTo(BigInteger.ZERO) > 0);
+        _checkBalance = (((_studentCounter.compareTo(_require) >= 0) && _checkBalance));
+        return _checkBalance.toString();*/
+    }
     private Boolean isAvailableToRefund(Address _from){
+        //counter
         BigInteger _studentCounter = this.safeGetCounter(_from);
         if (_studentCounter.compareTo(BigInteger.ZERO) <= 0)
             return false;
 
         BigInteger _require = this.numberOfLesson.multiply(BigInteger.valueOf(80));
         _require = _require.divide(BigInteger.valueOf(100));
+        long tmp = StrictMath.round( StrictMath.ceil(_require.doubleValue()));
+        _require = BigInteger.valueOf(tmp);
+        //balance 
         BigInteger _studentTuition = this.safeGetBalance(_from);
-        Boolean _isRefund = (_studentTuition.compareTo(BigInteger.ZERO) > 0);
-        return ((_studentCounter.compareTo(_require) >= 0) && _isRefund);
+        Boolean _checkBalance = (_studentTuition.compareTo(BigInteger.ZERO) > 0);
+        return ((_studentCounter.compareTo(_require) >= 0) && _checkBalance);
     }
 
     private void refund(Address _from, BigInteger _value){

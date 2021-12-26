@@ -124,12 +124,16 @@ class CrowdsaleTest extends TestBase {
             BigInteger _balance = iconService.getBalance(wallets[i].getAddress()).execute();
             LOG.info(wallets[i].getAddress() + ": " + _balance.toString() ) ;
         };
+        
+        LOG.info(crowdsaleScore.test(B_Wallet.getAddress()).toString());
+
         crowdsaleScore.withdraw(teacher);
         LOG.info("Balance of each students after refund: ");
         for (int i = 1; i < wallets.length; i++) {
             BigInteger _balance = iconService.getBalance(wallets[i].getAddress()).execute();
             LOG.info(wallets[i].getAddress() + ": " + _balance.toString() ) ;
         };
+        LOG.infoExiting();
         
 
 /*
