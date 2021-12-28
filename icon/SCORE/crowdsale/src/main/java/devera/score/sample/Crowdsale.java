@@ -102,6 +102,7 @@ public class Crowdsale
         Context.require(!this.afterEndCourse());
 
         Address _from = Context.getCaller();
+        Context.require(!_from.equals(this.teacher));
         BigInteger _value = Context.getValue();
         Context.require(_value.compareTo(BigInteger.ZERO) > 0);
 
@@ -110,10 +111,12 @@ public class Crowdsale
 
         // accept the tuition
         BigInteger fromBalance = safeGetBalance(_from);
+        if (fromBalance.compareTo(BigInteger.ZERO) <= 0)
+            //add student address to list student
+            this.listStudent.add(_from);
         this.balanceOfStudents.set(_from, fromBalance.add(_value));
 
-        //add student address to list student
-        this.listStudent.add(_from);
+        
 
         // increase the total amount of funding
         BigInteger amountRaised = safeGetAmountRaised();
@@ -122,39 +125,21 @@ public class Crowdsale
         // emit eventlog
         Registration(_from, _value);
     }
-    @External(readonly=true)
-    public String test(Address _from){
-        //counter
-        BigInteger _studentCounter = this.safeGetCounter(_from);
-        if (_studentCounter.compareTo(BigInteger.ZERO) <= 0)
-            return "false";
-
-        long _require = this.numberOfLesson.longValue();
-        double _tmp = (double)(_require * 0.8); 
-        _tmp = StrictMath.ceil(_tmp);
-        _require = StrictMath.round(_tmp);
-        return String.valueOf(_tmp);
-        //balance 
-        /*
-        BigInteger _studentTuition = this.safeGetBalance(_from);
-        Boolean _checkBalance = (_studentTuition.compareTo(BigInteger.ZERO) > 0);
-        _checkBalance = (((_studentCounter.compareTo(_require) >= 0) && _checkBalance));
-        return _checkBalance.toString();*/
-    }
     private Boolean isAvailableToRefund(Address _from){
         //counter
         BigInteger _studentCounter = this.safeGetCounter(_from);
         if (_studentCounter.compareTo(BigInteger.ZERO) <= 0)
             return false;
 
-        BigInteger _require = this.numberOfLesson.multiply(BigInteger.valueOf(80));
-        _require = _require.divide(BigInteger.valueOf(100));
-        long tmp = StrictMath.round( StrictMath.ceil(_require.doubleValue()));
-        _require = BigInteger.valueOf(tmp);
+        long _require = this.numberOfLesson.longValue();
+        double _tmp = (double)(_require * 0.8); 
+        _tmp = StrictMath.ceil(_tmp);
+        _require = StrictMath.round(_tmp);
+        BigInteger _requireLesson = BigInteger.valueOf(_require);
         //balance 
         BigInteger _studentTuition = this.safeGetBalance(_from);
         Boolean _checkBalance = (_studentTuition.compareTo(BigInteger.ZERO) > 0);
-        return ((_studentCounter.compareTo(_require) >= 0) && _checkBalance);
+        return ((_studentCounter.compareTo(_requireLesson) >= 0) && _checkBalance);
     }
 
     private void refund(Address _from, BigInteger _value){
@@ -172,6 +157,7 @@ public class Crowdsale
         if (_from.equals(this.teacher) ){
             
             // refund tuition to student first
+            // if not available, delete balance
             for (int i = 0; i < this.listStudent.size() ; i++){
                 if (isAvailableToRefund(this.listStudent.get(i))){
                     Address _studentAddress = this.listStudent.get(i);
@@ -180,6 +166,7 @@ public class Crowdsale
 
                     refund(_studentAddress, _value);
                 }
+                this.balanceOfStudents.set(this.listStudent.get(i),BigInteger.ZERO);
             }
             //refund to teacher
             BigInteger _amount = this.amountRaised.get();

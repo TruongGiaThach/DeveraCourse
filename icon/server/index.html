@@ -2,32 +2,45 @@
 <html>
 
 <head>
-    <title>crowdsale</title>
+    <title>Course</title>
+    <!-- cx65414b9a75479756d0455ab5cde6bc53a615528b -->
 </head>
 
 <body>
-    <h1>Crowdlsale</h1>
+    <h1>Devera Course</h1>
 
-    <h2>Enter crowdsale contract address to start</h2>
-    <p>Crowdsale contract Address : <input id="request-crowdsale-data" type="text"/></p>
+    <h2>Enter course address to start</h2>
+    <p>Course Address : <input id="request-crowdsale-data" type="text" /></p>
     <button id="request-crowdsale">Enter</button>
 
     <p>--------------------</p>
     <p><b id="project-name"></b></p>
     <p><b id="project-description"></b></p>
-
+    <p><b id="current-lesson"></b></p>
     <p>--------------------</p>
     <p><b>Choose you address to interact with crowdsale dapp</b></p>
     <button id="request-address">Choose wallet address</button>
     <p id="response-address"></p>
 
-    <h2>Deposit to crowdsale</h2>
-    <p>Amount : <input id="request-deposit-amount" type="text"/></p>
+    <h2>Student registation: </h2>
+    <p>Amount : <input id="request-deposit-amount" type="text" /></p>
     <button id="request-deposit">Deposit</button>
 
-    <h2>Check result</h2>
-    <button id="check-balance">Check deposited balance</button>
+    <h2>Check your information in course: </h2>
+    <button id="check-balance">Check </button>
     <p id="deposited-balance"></p>
+    <p id="counter"></p>
+
+    <h2 class="roll-call">Join to class </h2>
+    <button id="button-roll-call" class="roll-call">Rollcall</button>
+    <!--teacher -->
+    <h2 id="state-of-class-title"> </h2>
+    <!-- <button id="button-change-state-of-class"></button>-->
+    <button id="button-open" style="display: none;">Open class (only teacher)</button>
+    <button id="button-close" style="display: none;">Close class (only teacher)</button>
+    <!-- withdraw -->
+    <h2> Attendance claim icx </h2>
+    <button id="button-withdraw">Claim token</button>
 
     <script src="http://cdn.jsdelivr.net/gh/icon-project/icon-sdk-js@latest/build/icon-sdk-js.web.min.js"></script>
     <script async>
@@ -54,9 +67,18 @@
 
         var checkBalance = document.getElementById("check-balance")
         var depositedBalance = document.getElementById("deposited-balance")
+        var counter = document.getElementById("counter");
 
         var requestAddress = document.getElementById("request-address")
         var responseAddress = document.getElementById("response-address")
+
+        var currentLesson = document.getElementById("current-lesson");
+        var stateOfClassTitle = document.getElementById("state-of-class-title");
+        var buttonRollCall = document.getElementById("button-roll-call");
+        var buttonOpen = document.getElementById("button-open");
+        var buttonClose = document.getElementById("button-close");
+        var buttonWithdraw = document.getElementById("button-withdraw");
+        var classRollCall = document.getElementsByClassName("roll-call");
 
         window.addEventListener("ICONEX_RELAY_RESPONSE", eventHandler, false);
         function eventHandler(event) {
@@ -77,9 +99,9 @@
 
                         var callBuilder = new IconBuilder.CallBuilder;
                         var descriptionRequestData = callBuilder
-                        .to(requestCrowdsaleData.value || requestCrowdsaleData.placeholder)
-                        .method("description")
-                        .build()
+                            .to(requestCrowdsaleData.value || requestCrowdsaleData.placeholder)
+                            .method("description")
+                            .build()
 
                         window.dispatchEvent(new CustomEvent('ICONEX_RELAY_REQUEST', {
                             detail: {
@@ -96,14 +118,61 @@
 
                     if (payload.id === 2222) {
                         projectDescription.innerHTML = payload.result;
+                        getCurrentLesson();
+                        getCurrentStateOfClass();
                         break;
                     }
 
                     if (payload.id === 3333) {
                         depositedBalance.innerHTML = "> Deposited balance : " + IconConverter.toBigNumber(payload.result).dividedBy(IconConverter.toBigNumber('10').exponentiatedBy(18)).toString();
+                        getCounter();
                         break;
                     }
-
+                    if (payload.id === 1) {
+                        currentLesson.innerHTML = "Current lesson of class: " + IconConverter.toBigNumber(payload.result).toString();
+                        break;
+                    }
+                    if (payload.id === 2) {
+                        console.log(payload.result);
+                        if (payload.result === "true"){
+                            stateOfClassTitle.innerHTML = "Class was opened";
+                            buttonClose.style.display = "block";
+                            buttonOpen.style.display = "none";
+                            var testDivs = Array.prototype.filter.call(classRollCall, function (testElement) {
+                                testElement.style.display = "block";
+                            });
+                            buttonWithdraw.disabled = true;
+                        }
+                            
+                        else {
+                            stateOfClassTitle.innerHTML = "Class was closed";
+                            buttonClose.style.display = "none";
+                            buttonOpen.style.display = "block";
+                            var testDivs = Array.prototype.filter.call(classRollCall, function (testElement) {
+                                testElement.style.display = "none";
+                            });
+                            buttonWithdraw.disabled = false;
+                        }
+                        break;
+                    }
+                    if (payload.id === 3) {
+                        console.log(payload);
+                        getCurrentStateOfClass();
+                        break;
+                    }
+                    if (payload.id === 4) {
+                        console.log(payload);
+                        getCurrentStateOfClass();
+                        break;
+                    }
+                    if (payload.id === 5) {
+                        counter.innerHTML = "Had joined: " + IconConverter.toBigNumber(payload.result).toString();
+                        break;
+                    }
+                    if (payload.id === 6) {
+                        console.log(payload);
+                        break;
+                    }
                     break;
 
                 default:
@@ -130,7 +199,166 @@
                 }
             }))
         }
+        function getCounter() {
+            var callBuilder = new IconBuilder.CallBuilder;
+            var descriptionRequestData = callBuilder
+                .to(crowdsaleContractAddress)
+                .method("checkNumberOfStudentAttended")
+                .params({
+                    "_owner": currentAddress
+                })
+                .build()
 
+            window.dispatchEvent(new CustomEvent('ICONEX_RELAY_REQUEST', {
+                detail: {
+                    type: 'REQUEST_JSON-RPC',
+                    payload: {
+                        "jsonrpc": "2.0",
+                        "method": "icx_call",
+                        "params": descriptionRequestData,
+                        "id": 5
+                    }
+                }
+            }))
+        }
+        function getCurrentLesson() {
+            var callBuilder = new IconBuilder.CallBuilder;
+            var descriptionRequestData = callBuilder
+                .to(crowdsaleContractAddress)
+                .method("CurrentLesson")
+                .build()
+
+            window.dispatchEvent(new CustomEvent('ICONEX_RELAY_REQUEST', {
+                detail: {
+                    type: 'REQUEST_JSON-RPC',
+                    payload: {
+                        "jsonrpc": "2.0",
+                        "method": "icx_call",
+                        "params": descriptionRequestData,
+                        "id": 1
+                    }
+                }
+            }))
+        }
+        function getCurrentStateOfClass() {
+            var callBuilder = new IconBuilder.CallBuilder;
+            var descriptionRequestData = callBuilder
+                .to(requestCrowdsaleData.value || requestCrowdsaleData.placeholder)
+                .method("isOpenRollCall")
+                .build()
+
+            window.dispatchEvent(new CustomEvent('ICONEX_RELAY_REQUEST', {
+                detail: {
+                    type: 'REQUEST_JSON-RPC',
+                    payload: {
+                        "jsonrpc": "2.0",
+                        "method": "icx_call",
+                        "params": descriptionRequestData,
+                        "id": 2
+                    }
+                }
+            }))
+        }
+        buttonOpen.onclick = function () {
+            
+            var callTransactionBuilder = new IconBuilder.CallTransactionBuilder;
+            var requestOpenClass = callTransactionBuilder
+                .from(currentAddress)
+                .to(crowdsaleContractAddress)
+                .method("openRollCall")
+                .nid("0x53")
+                .timestamp((new Date()).getTime() * 1000)
+                .version(IconConverter.toBigNumber(3))
+                .stepLimit(IconConverter.toBigNumber(10000000))
+                .build();
+
+            window.dispatchEvent(new CustomEvent('ICONEX_RELAY_REQUEST', {
+                detail: {
+                    type: 'REQUEST_JSON-RPC',
+                    payload: {
+                        "jsonrpc": "2.0",
+                        "method": "icx_sendTransaction",
+                        "params": IconConverter.toRawTransaction(requestOpenClass),
+                        "id": 3
+                    }
+                }
+            }))
+        }
+        buttonWithdraw.onclick = function () {
+            
+            var callTransactionBuilder = new IconBuilder.CallTransactionBuilder;
+            var requestWithdraw = callTransactionBuilder
+                .from(currentAddress)
+                .to(crowdsaleContractAddress)
+                .method("withdraw")
+                .nid("0x53")
+                .timestamp((new Date()).getTime() * 1000)
+                .version(IconConverter.toBigNumber(3))
+                .stepLimit(IconConverter.toBigNumber(10000000))
+                .build();
+
+            window.dispatchEvent(new CustomEvent('ICONEX_RELAY_REQUEST', {
+                detail: {
+                    type: 'REQUEST_JSON-RPC',
+                    payload: {
+                        "jsonrpc": "2.0",
+                        "method": "icx_sendTransaction",
+                        "params": IconConverter.toRawTransaction(requestWithdraw),
+                        "id": 6
+                    }
+                }
+            }))
+        }
+        buttonClose.onclick = function () {
+            
+            var callTransactionBuilder = new IconBuilder.CallTransactionBuilder;
+            var requestOpenClass = callTransactionBuilder
+                .from(currentAddress)
+                .to(crowdsaleContractAddress)
+                .method("closeRollCall")
+                .nid("0x53")
+                .timestamp((new Date()).getTime() * 1000)
+                .version(IconConverter.toBigNumber(3))
+                .stepLimit(IconConverter.toBigNumber(10000000))
+                .build();
+
+            window.dispatchEvent(new CustomEvent('ICONEX_RELAY_REQUEST', {
+                detail: {
+                    type: 'REQUEST_JSON-RPC',
+                    payload: {
+                        "jsonrpc": "2.0",
+                        "method": "icx_sendTransaction",
+                        "params": IconConverter.toRawTransaction(requestOpenClass),
+                        "id": 3
+                    }
+                }
+            }))
+        }
+        buttonRollCall.onclick = function () {
+            
+            var callTransactionBuilder = new IconBuilder.CallTransactionBuilder;
+            var request = callTransactionBuilder
+                .from(currentAddress)
+                .to(crowdsaleContractAddress)
+                .method("rollCall")
+                .nid("0x53")
+                .timestamp((new Date()).getTime() * 1000)
+                .version(IconConverter.toBigNumber(3))
+                .stepLimit(IconConverter.toBigNumber(10000000))
+                .build();
+
+            window.dispatchEvent(new CustomEvent('ICONEX_RELAY_REQUEST', {
+                detail: {
+                    type: 'REQUEST_JSON-RPC',
+                    payload: {
+                        "jsonrpc": "2.0",
+                        "method": "icx_sendTransaction",
+                        "params": IconConverter.toRawTransaction(request),
+                        "id": 3
+                    }
+                }
+            }))
+        }
         checkBalance.onclick = function () {
             var callBuilder = new IconBuilder.CallBuilder;
             var balanceOfRequestData = callBuilder
@@ -160,7 +388,7 @@
             var icxTransferData = icxTransactionBuilder
                 .from(currentAddress)
                 .to(crowdsaleContractAddress)
-                .nid(IconConverter.toBigNumber(3))
+                .nid("0x53")
                 .value(IconAmount.of(depositValue, IconAmount.Unit.ICX).toLoop())
                 .timestamp((new Date()).getTime() * 1000)
                 .version(IconConverter.toBigNumber(3))
@@ -190,4 +418,5 @@
 
     </script>
 </body>
+
 </html>

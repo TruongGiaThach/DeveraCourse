@@ -90,12 +90,7 @@ public class CrowdSaleScore extends Score {
                 .build();
         return call("balanceOf", params).asInteger();
     }
-    public String test(Address owner) throws IOException {
-        RpcObject params = new RpcObject.Builder()
-                .put("_from", new RpcValue(owner))
-                .build();
-        return call("test", params).toString();
-    }
+    
     public void ensureTuitionBalance(Address owner, long value) throws ResultTimeoutException, IOException {
         long limitTime = System.currentTimeMillis() + Constants.DEFAULT_WAITING_TIME;
         while (true) {

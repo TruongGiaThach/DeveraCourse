@@ -125,9 +125,6 @@ class CrowdsaleTest extends TestBase {
             LOG.info(wallets[i].getAddress() + ": " + _balance.toString() ) ;
         };
 
-        LOG.info(crowdsaleScore.test(B_Wallet.getAddress()));
-        LOG.info(crowdsaleScore.test(B_Wallet.getAddress()));
-
         crowdsaleScore.withdraw(teacher);
         LOG.info("Balance of each students after refund: ");
         for (int i = 1; i < wallets.length; i++) {
