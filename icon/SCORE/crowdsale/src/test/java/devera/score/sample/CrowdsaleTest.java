@@ -22,21 +22,14 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 class CrowdsaleTest extends TestBase {
-  /*  // sample-token
-    private static final String name = "MySampleToken";
-    private static final String symbol = "MST";
-    private static final int decimals = 18;
-    private static final BigInteger initialSupply = BigInteger.valueOf(1000);
-    private static final BigInteger totalSupply = initialSupply.multiply(TEN.pow(decimals));
-
+   
     // sample-crowdsale
-    private static final BigInteger fundingGoalInICX = BigInteger.valueOf(100);
-    private static final BigInteger tokenPrice = BigInteger.valueOf(10);
-    private static final BigInteger durationInBlocks = BigInteger.valueOf(32);
+    private static final BigInteger tuition = BigInteger.valueOf(20);
+    private static final BigInteger numberOfLesson = BigInteger.valueOf(10);
+    private static final BigInteger durationInDefault = BigInteger.valueOf(3600);
 
     private static final ServiceManager sm = getServiceManager();
-    private static final Account owner = sm.createAccount();
-    private Score tokenScore;
+    private static final Account teacher = sm.createAccount();
     private Score crowdsaleScore;
 
     private Crowdsale crowdsaleSpy;
@@ -44,11 +37,10 @@ class CrowdsaleTest extends TestBase {
 
     @BeforeEach
     public void setup() throws Exception {
-        // deploy token and crowdsale scores
-        tokenScore = sm.deploy(owner, IRC2BurnableToken.class,
-                name, symbol, decimals, initialSupply);
-        crowdsaleScore = sm.deploy(owner, Crowdsale.class,
-                fundingGoalInICX, tokenScore.getAddress(), durationInBlocks, tokenPrice);
+        // deploy  crowdsale scores
+        
+        crowdsaleScore = sm.deploy(teacher, Crowdsale.class,
+                tuition, numberOfLesson , durationInDefault);
 
         // setup spy object against the crowdsale object
         crowdsaleSpy = (Crowdsale) spy(crowdsaleScore.getInstance());
@@ -56,10 +48,22 @@ class CrowdsaleTest extends TestBase {
     }
 
     private void startCrowdsale() {
-        // transfer all tokens to crowdsale score
-        tokenScore.invoke(owner, "transfer", crowdsaleScore.getAddress(), totalSupply, startCrowdsaleBytes);
+        
     }
-
+    @Test
+    void fallback() {
+        startCrowdsale();
+        // fund 40 icx from Alice
+        Account alice = sm.createAccount(100);
+        BigInteger fund = ICX.multiply(BigInteger.valueOf(40));
+        sm.transfer(alice, crowdsaleScore.getAddress(), fund);
+        // verify
+        verify(crowdsaleSpy).fallback();
+        verify(crowdsaleSpy).Registration(alice.getAddress(), fund);
+        assertEquals(fund, Account.getAccount(crowdsaleScore.getAddress()).getBalance());
+        assertTrue(fund.equals(crowdsaleScore.call("balanceOf", alice.getAddress())));
+    }
+/*
     @Test
     void tokenFallback() {
         // transfer IRC2 token to start crowsale
