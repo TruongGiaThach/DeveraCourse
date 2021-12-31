@@ -46,7 +46,13 @@ class CrowdsaleTest extends TestBase {
         crowdsaleSpy = (Crowdsale) spy(crowdsaleScore.getInstance());
         crowdsaleScore.setInstance(crowdsaleSpy);
     }
-
+    private Account initStudent() {
+       // fund 40 icx from Alice
+        Account alice = sm.createAccount(100);
+        BigInteger fund = ICX.multiply(BigInteger.valueOf(40));
+        sm.transfer(alice, crowdsaleScore.getAddress(), fund);
+        return alice;
+    }
 
     /* #######################Test passed############################
     // register test
@@ -101,9 +107,52 @@ class CrowdsaleTest extends TestBase {
         assertEquals(expectedValue, Account.getAccount(crowdsaleScore.getAddress()).getBalance());
         assertTrue(expectedValue.equals(crowdsaleScore.call("balanceOf", alice.getAddress())));
     }
-    */
     
+    @Test
+    void rollCall() {
+        Account alice = this.initStudent();
+        crowdsaleScore.invoke( this.teacher,"openRollCall");
+        crowdsaleScore.invoke( alice,"rollCall");
+        BigInteger  _value = BigInteger.valueOf(1);
+        // verify
+        verify(crowdsaleSpy).rollCall();
+        verify(crowdsaleSpy).RollCall(alice.getAddress(), _value);
+        assertTrue(_value.equals(crowdsaleScore.call("checkNumberOfStudentAttended", alice.getAddress())));
+    }
+    @Test
+    void rollCall_withNonExistedStudent() {
+        Account alice = sm.createAccount(100);
+        crowdsaleScore.invoke( this.teacher,"openRollCall");
+        crowdsaleScore.invoke( alice,"rollCall");
+        BigInteger  _value = BigInteger.valueOf(0);
+        // verify
+        verify(crowdsaleSpy).rollCall();
+        verify(crowdsaleSpy).FailRollCall(alice.getAddress());
+        assertTrue(_value.equals(crowdsaleScore.call("checkNumberOfStudentAttended", alice.getAddress())));
+    }
+    @Test
+    void rollCall_whenInactiveClass() {
+        Account alice = initStudent();
+        crowdsaleScore.invoke( alice,"rollCall");
+        BigInteger  _value = BigInteger.valueOf(0);
+        // verify
+        verify(crowdsaleSpy).rollCall();
+        verify(crowdsaleSpy).FailRollCall(alice.getAddress());
+        assertTrue(_value.equals(crowdsaleScore.call("checkNumberOfStudentAttended", alice.getAddress())));
+    }
+    @Test
+    void rollCall_hadRolled() {
+        Account alice = initStudent();
+        crowdsaleScore.invoke( this.teacher,"openRollCall");
+        crowdsaleScore.invoke( alice,"rollCall");
+        crowdsaleScore.invoke( alice,"rollCall");
+        BigInteger  _value = BigInteger.valueOf(1);
+        // verify
+        verify(crowdsaleSpy).FailRollCall(alice.getAddress());
+        assertTrue(_value.equals(crowdsaleScore.call("checkNumberOfStudentAttended", alice.getAddress())));
+    }*/
 /*
+
     @Test
     void tokenFallback() {
         // transfer IRC2 token to start crowsale
