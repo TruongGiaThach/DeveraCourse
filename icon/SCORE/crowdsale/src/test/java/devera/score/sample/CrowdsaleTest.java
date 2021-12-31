@@ -47,12 +47,12 @@ class CrowdsaleTest extends TestBase {
         crowdsaleScore.setInstance(crowdsaleSpy);
     }
 
-    private void startCrowdsale() {
-        
-    }
+
+    /* #######################Test passed############################
+    // register test
     @Test
     void fallback() {
-        startCrowdsale();
+        
         // fund 40 icx from Alice
         Account alice = sm.createAccount(100);
         BigInteger fund = ICX.multiply(BigInteger.valueOf(40));
@@ -63,6 +63,46 @@ class CrowdsaleTest extends TestBase {
         assertEquals(fund, Account.getAccount(crowdsaleScore.getAddress()).getBalance());
         assertTrue(fund.equals(crowdsaleScore.call("balanceOf", alice.getAddress())));
     }
+    @Test
+    void fallback_notEnoughTuition() {
+        Account alice = sm.createAccount(100);
+        BigInteger fund = ICX.multiply(BigInteger.valueOf(10));
+        
+        assertThrows(AssertionError.class, () ->
+                sm.transfer(alice, crowdsaleScore.getAddress(), fund));
+    }
+    @Test
+    void fallback_courseWasClosed() {
+        Account alice = sm.createAccount(100);
+        BigInteger fund = ICX.multiply(BigInteger.valueOf(40));
+        // increase the number of classes has passed
+        for (int i = 0; i < this.numberOfLesson.intValue(); i++){
+            crowdsaleScore.invoke( this.teacher,"openRollCall");
+            crowdsaleScore.invoke( this.teacher,"closeRollCall");
+            System.out.println(i);
+        }
+        // crowdsale has finished
+        assertThrows(AssertionError.class, () -> 
+            sm.transfer(alice, crowdsaleScore.getAddress(), fund));
+    }
+     @Test
+    void fallback_withExistedStudent() {
+        
+        // fund 40 icx from Alice
+        Account alice = sm.createAccount(100);
+        BigInteger fund = ICX.multiply(BigInteger.valueOf(40));
+        sm.transfer(alice, crowdsaleScore.getAddress(), fund);
+        // fund more 20 icx from Alice
+        fund = ICX.multiply(BigInteger.valueOf(20));
+        sm.transfer(alice, crowdsaleScore.getAddress(), fund);
+        BigInteger expectedValue = ICX.multiply(BigInteger.valueOf(60));
+        // verify
+        verify(crowdsaleSpy).Registration(alice.getAddress(), fund);
+        assertEquals(expectedValue, Account.getAccount(crowdsaleScore.getAddress()).getBalance());
+        assertTrue(expectedValue.equals(crowdsaleScore.call("balanceOf", alice.getAddress())));
+    }
+    */
+    
 /*
     @Test
     void tokenFallback() {
