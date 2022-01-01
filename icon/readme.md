@@ -3,7 +3,7 @@
     ./gradlew optimizedJar
     ./gradlew crowdsale:deployToSejong  -PkeystoreName=./godWallet.json -PkeystorePass=gochain
 
-### change ur current contract address to all of bellow statement
+### Change ur current contract address to all of bellow statement
 //register course with 10 ICX
     
     goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx transfer --to cx00ba43897d8a9e2363e6626250ed6fac00ff2eb7 --value 10000000000000000000 --key_store ./test.json --key_password btvn123456@ --nid 0x53 --step_limit 2000000000
