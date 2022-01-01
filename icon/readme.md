@@ -92,11 +92,14 @@ teacher withdraw
 
 # integration test
 install extention "live server" into vscode and start the sever
+
 go to gochain_local folder and run:
+
     ./run_gochain.sh stop
     ./run_gochain.sh start
 
 turn back to project and run:
+
     ./gradlew build
     ./gradlew optimizedJar
     ./gradlew crowdsale:integrationTest
@@ -107,6 +110,7 @@ open chrome and go to http://127.0.0.1:5500/SCORE/crowdsale/build/reports/tests/
 # unit test
 install extention "live server" into vscode and start the sever
 in project, run:
+
     ./gradlew test
 
 open chrome and go to http://127.0.0.1:5500/SCORE/crowdsale/build/reports/tests/test/classes/devera.score.example.CrowdsaleTest.html
