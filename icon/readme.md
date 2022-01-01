@@ -1,8 +1,9 @@
-﻿./gradlew build
+﻿# Manual Test
+./gradlew build
 ./gradlew optimizedJar
 ./gradlew crowdsale:deployToSejong  -PkeystoreName=./godWallet.json -PkeystorePass=gochain
 
-###change ur current contract address to all of bellow statement
+### change ur current contract address to all of bellow statement
 //register course with 10 ICX
     
 goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx transfer --to cx00ba43897d8a9e2363e6626250ed6fac00ff2eb7 --value 10000000000000000000 --key_store ./test.json --key_password btvn123456@ --nid 0x53 --step_limit 2000000000
@@ -85,3 +86,34 @@ goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cx00
     --method withdraw \
     --key_store godWallet.json --key_password gochain \
     --nid 0x53 --step_limit 200000000
+
+# integration test
+//install extention "live server" into vscode and start the sever
+//go to gochain_local folder and run:
+ ./run_gochain.sh stop
+ ./run_gochain.sh start
+
+//turn back to project and run:
+./gradlew build
+./gradlew optimizedJar
+./gradlew crowdsale:integrationTest
+
+//open chrome and go to http://127.0.0.1:5500/SCORE/crowdsale/build/reports/tests/integrationTest/classes/foundation.icon.test.cases.CrowdsaleTest.html
+    to see result
+
+# unit test
+//install extention "live server" into vscode and start the sever
+// in project, run:
+./gradlew test
+
+//open chrome and go to http://127.0.0.1:5500/SCORE/crowdsale/build/reports/tests/test/classes/devera.score.example.CrowdsaleTest.html
+    to see result
+
+# using web ui to contact with course
+
+// go to server folder in this project, run:
+
+npm install
+npm start
+
+// open chrome and go to http://localhost:8080 to see result

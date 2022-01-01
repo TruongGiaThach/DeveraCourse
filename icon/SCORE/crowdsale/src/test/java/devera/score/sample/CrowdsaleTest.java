@@ -53,8 +53,6 @@ class CrowdsaleTest extends TestBase {
         sm.transfer(alice, crowdsaleScore.getAddress(), fund);
         return alice;
     }
-
-    /* #######################Test passed############################
     // register test
     @Test
     void fallback() {
@@ -85,7 +83,7 @@ class CrowdsaleTest extends TestBase {
         for (int i = 0; i < this.numberOfLesson.intValue(); i++){
             crowdsaleScore.invoke( this.teacher,"openRollCall");
             crowdsaleScore.invoke( this.teacher,"closeRollCall");
-            System.out.println(i);
+          
         }
         // crowdsale has finished
         assertThrows(AssertionError.class, () -> 
@@ -107,7 +105,7 @@ class CrowdsaleTest extends TestBase {
         assertEquals(expectedValue, Account.getAccount(crowdsaleScore.getAddress()).getBalance());
         assertTrue(expectedValue.equals(crowdsaleScore.call("balanceOf", alice.getAddress())));
     }
-    
+    //student roll call test
     @Test
     void rollCall() {
         Account alice = this.initStudent();
@@ -151,6 +149,7 @@ class CrowdsaleTest extends TestBase {
         verify(crowdsaleSpy).FailRollCall(alice.getAddress());
         assertTrue(_value.equals(crowdsaleScore.call("checkNumberOfStudentAttended", alice.getAddress())));
     }
+    // teacher contact to contract test
     @Test
     void openRollCall() {
        
@@ -183,7 +182,7 @@ class CrowdsaleTest extends TestBase {
         for (int i = 1; i <= this.numberOfLesson.intValue(); i++){
             crowdsaleScore.invoke( this.teacher,"openRollCall");
             crowdsaleScore.invoke( this.teacher,"closeRollCall");
-            System.out.println(i);
+            
         }
         BigInteger  _value = BigInteger.valueOf(10);
         crowdsaleScore.invoke( this.teacher,"openRollCall");
@@ -219,8 +218,8 @@ class CrowdsaleTest extends TestBase {
         // verify
          assertThrows(AssertionError.class, () -> 
             crowdsaleScore.invoke( this.teacher,"closeRollCall"));
-    }*/
-   
+    }
+    //withdraw test
     @Test
     void teacherWithdraw_withNonAccordantStudent() {
         //create new student with 40icx in course, 60icx balance
@@ -229,7 +228,6 @@ class CrowdsaleTest extends TestBase {
         for (int i = 1; i <= this.numberOfLesson.intValue(); i++){
             crowdsaleScore.invoke( this.teacher,"openRollCall");
             crowdsaleScore.invoke( this.teacher,"closeRollCall");
-            System.out.println(i);
         }
         BigInteger  _value = this.teacher.getBalance().add(ICX.multiply(BigInteger.valueOf(40)));
         crowdsaleScore.invoke( this.teacher,"withdraw");
@@ -239,7 +237,7 @@ class CrowdsaleTest extends TestBase {
         assertEquals(BigInteger.ZERO, Account.getAccount(crowdsaleScore.getAddress()).getBalance());
         assertEquals(BigInteger.ZERO, crowdsaleScore.call("balanceOf", alice.getAddress()));
     }
-     @Test
+    @Test
     void teacherWithdraw_withAccordantStudent() {
         //create new student with 40icx in course, 60icx balance
         Account alice = this.initStudent();
@@ -248,69 +246,85 @@ class CrowdsaleTest extends TestBase {
             crowdsaleScore.invoke( this.teacher,"openRollCall");
             crowdsaleScore.invoke( alice,"rollCall");
             crowdsaleScore.invoke( this.teacher,"closeRollCall");
-            System.out.println(i);
+            
         }
-        BigInteger  _value = this.teacher.getBalance().add(ICX.multiply(BigInteger.valueOf(40)));
+        BigInteger  _valueOfStudent = alice.getBalance().add(ICX.multiply(BigInteger.valueOf(40)));
+        BigInteger  _valueOfTeacher = this.teacher.getBalance();
         crowdsaleScore.invoke( this.teacher,"withdraw");
         // verify
         verify(crowdsaleSpy).withdraw();
-        assertTrue(_value.equals(this.teacher.getBalance()));
+        assertEquals(_valueOfTeacher, this.teacher.getBalance());
         assertEquals(BigInteger.ZERO, Account.getAccount(crowdsaleScore.getAddress()).getBalance());
+
+        assertEquals(_valueOfStudent, alice.getBalance());
         assertEquals(BigInteger.ZERO, crowdsaleScore.call("balanceOf", alice.getAddress()));
     }
-/*
-
     @Test
-    void tokenFallback() {
-        // transfer IRC2 token to start crowsale
-        startCrowdsale();
+    void studentWithdraw() {
+        //create new student with 40icx in course, 60icx balance
+        Account alice = this.initStudent();
+        // increase the number of classes has passed
+        for (int i = 1; i <= this.numberOfLesson.intValue(); i++){
+            crowdsaleScore.invoke( this.teacher,"openRollCall");
+            crowdsaleScore.invoke( alice,"rollCall");
+            crowdsaleScore.invoke( this.teacher,"closeRollCall");
+           
+        }
+        BigInteger  _valueOfStudent = alice.getBalance().add(ICX.multiply(BigInteger.valueOf(40)));
+        crowdsaleScore.invoke( alice, "withdraw");
         // verify
-        verify(crowdsaleSpy).tokenFallback(owner.getAddress(), totalSupply, startCrowdsaleBytes);
-        verify(crowdsaleSpy).CrowdsaleStarted(eq(ICX.multiply(fundingGoalInICX)), anyLong());
-        assertEquals(totalSupply, tokenScore.call("balanceOf", crowdsaleScore.getAddress()));
-    }
-
+        verify(crowdsaleSpy).withdraw();
+        assertEquals(BigInteger.ZERO, Account.getAccount(crowdsaleScore.getAddress()).getBalance());
+        assertEquals(_valueOfStudent, alice.getBalance());
+        assertEquals(BigInteger.ZERO, crowdsaleScore.call("balanceOf", alice.getAddress()));
+    } 
     @Test
-    void fallback_crowdsaleNotYetStarted() {
-        Account alice = sm.createAccount(100);
-        BigInteger fund = ICX.multiply(BigInteger.valueOf(40));
-        // crowdsale is not yet started
-        assertThrows(AssertionError.class, () ->
-                sm.transfer(alice, crowdsaleScore.getAddress(), fund));
-    }
-
-    @Test
-    void fallback() {
-        startCrowdsale();
-        // fund 40 icx from Alice
-        Account alice = sm.createAccount(100);
-        BigInteger fund = ICX.multiply(BigInteger.valueOf(40));
-        sm.transfer(alice, crowdsaleScore.getAddress(), fund);
+    void withdraw_whenWrongTime() {
+        //create new student with 40icx in course, 60icx balance
+        Account alice = this.initStudent();
+        // increase the number of classes has passed
+        for (int i = 1; i <= this.numberOfLesson.intValue()-2; i++){
+            crowdsaleScore.invoke( this.teacher,"openRollCall");
+            crowdsaleScore.invoke( alice,"rollCall");
+            crowdsaleScore.invoke( this.teacher,"closeRollCall");
+           
+        }
+        BigInteger  _valueOfStudent = alice.getBalance().add(ICX.multiply(BigInteger.valueOf(40)));
         // verify
-        verify(crowdsaleSpy).fallback();
-        verify(crowdsaleSpy).FundDeposit(alice.getAddress(), fund);
-        assertEquals(fund, Account.getAccount(crowdsaleScore.getAddress()).getBalance());
-        assertTrue(fund.multiply(tokenPrice).equals(tokenScore.call("balanceOf", alice.getAddress())));
+        assertThrows(AssertionError.class, () -> 
+            crowdsaleScore.invoke( alice, "withdraw"));
     }
-
     @Test
-    void safeWithdrawal() {
-        startCrowdsale();
-        // fund 40 icx from Alice
-        Account alice = sm.createAccount(100);
-        sm.transfer(alice, crowdsaleScore.getAddress(), ICX.multiply(BigInteger.valueOf(40)));
-        // fund 60 icx from Bob
-        Account bob = sm.createAccount(100);
-        sm.transfer(bob, crowdsaleScore.getAddress(), ICX.multiply(BigInteger.valueOf(60)));
-        // make the goal reached
-        sm.getBlock().increase(durationInBlocks.longValue());
-        // invoke safeWithdrawal
-        BigInteger withdrawAmount = ICX.multiply(BigInteger.valueOf(30));
-        crowdsaleScore.invoke(owner, "withdraw", withdrawAmount);
+    void withdraw_fromStranger() {
+        //create new student with 40icx in course, 60icx balance
+        Account alice = this.initStudent();
+        // increase the number of classes has passed
+        for (int i = 1; i <= this.numberOfLesson.intValue(); i++){
+            crowdsaleScore.invoke( this.teacher,"openRollCall");
+            crowdsaleScore.invoke( alice,"rollCall");
+            crowdsaleScore.invoke( this.teacher,"closeRollCall");
+           
+        }
+        Account randomUser = sm.createAccount();
         // verify
-        verify(crowdsaleSpy).FundWithdraw(owner.getAddress(), withdrawAmount);
-        assertEquals(withdrawAmount, Account.getAccount(owner.getAddress()).getBalance());
-        assertEquals(ICX.multiply(fundingGoalInICX).subtract(withdrawAmount), crowdsaleScore.call("amountRaised"));
+        assertThrows(AssertionError.class, () -> 
+            crowdsaleScore.invoke( randomUser, "withdraw"));
     }
-    */
+   @Test
+    void studentWithdraw_withNonRequiredNumberOfClass() {
+        //create new student with 40icx in course, 60icx balance
+        Account alice = this.initStudent();
+        // increase the number of classes has passed
+        for (int i = 1; i <= this.numberOfLesson.intValue(); i++){
+            crowdsaleScore.invoke( this.teacher,"openRollCall");
+            if (i < 8)
+                crowdsaleScore.invoke( alice,"rollCall");
+            crowdsaleScore.invoke( this.teacher,"closeRollCall");
+           
+        }
+        BigInteger  _valueOfStudent = alice.getBalance().add(ICX.multiply(BigInteger.valueOf(40)));
+        // verify
+        assertThrows(AssertionError.class, () -> 
+            crowdsaleScore.invoke( alice, "withdraw"));
+    }
 }
