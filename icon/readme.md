@@ -76,13 +76,15 @@ teacher try to open roll-call when maximum class
 	    --method openRollCall \
 	    --key_store godWallet.json --key_password gochain \
 	    --nid 0x53 --step_limit 200000000
-//student claim token 
+student claim token 
+
     goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cx00ba43897d8a9e2363e6626250ed6fac00ff2eb7 \
         --method withdraw \
         --key_store test.json --key_password btvn123456@ \
         --nid 0x53 --step_limit 200000000
 
 teacher withdraw
+
     goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cx00ba43897d8a9e2363e6626250ed6fac00ff2eb7 \
         --method withdraw \
         --key_store godWallet.json --key_password gochain \
