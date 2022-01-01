@@ -184,11 +184,7 @@ public class Crowdsale
 
         //refund to student
         refund(_from, _value);
-
-
-
-
-        
+   
     }
     
     @External

@@ -150,7 +150,114 @@ class CrowdsaleTest extends TestBase {
         // verify
         verify(crowdsaleSpy).FailRollCall(alice.getAddress());
         assertTrue(_value.equals(crowdsaleScore.call("checkNumberOfStudentAttended", alice.getAddress())));
+    }
+    @Test
+    void openRollCall() {
+       
+        crowdsaleScore.invoke( this.teacher,"openRollCall");
+        BigInteger  _value = BigInteger.valueOf(1);
+        // verify
+        verify(crowdsaleSpy).openRollCall();
+        verify(crowdsaleSpy).ActiveCourse(this.teacher.getAddress(), _value);
+        assertTrue(_value.equals(crowdsaleScore.call("CurrentLesson")));
+        assertEquals("true",crowdsaleScore.call("isOpenRollCall"));
+    }
+    @Test
+    void openRollCall_nonUsingTeacherAccount() {
+        Account alice = sm.createAccount(100);
+        
+        // verify
+         assertThrows(AssertionError.class, () -> 
+            crowdsaleScore.invoke( alice,"openRollCall"));
+    }
+    @Test
+    void openRollCall_withOpenedClass() {
+        crowdsaleScore.invoke( this.teacher,"openRollCall");
+        // verify
+         assertThrows(AssertionError.class, () -> 
+            crowdsaleScore.invoke( this.teacher,"openRollCall"));
+    }
+    @Test
+    void openRollCall_afterEndCourse() {
+        // increase the number of classes has passed
+        for (int i = 1; i <= this.numberOfLesson.intValue(); i++){
+            crowdsaleScore.invoke( this.teacher,"openRollCall");
+            crowdsaleScore.invoke( this.teacher,"closeRollCall");
+            System.out.println(i);
+        }
+        BigInteger  _value = BigInteger.valueOf(10);
+        crowdsaleScore.invoke( this.teacher,"openRollCall");
+        // verify
+        verify(crowdsaleSpy).FailToOpenRollCall();
+        assertTrue(_value.equals(crowdsaleScore.call("CurrentLesson")));
+        assertEquals("false",crowdsaleScore.call("isOpenRollCall"));
+    }
+    @Test
+    void closeRollCall() {
+       
+        crowdsaleScore.invoke( this.teacher,"openRollCall");
+        crowdsaleScore.invoke( this.teacher,"closeRollCall");
+        BigInteger  _value = BigInteger.valueOf(1);
+        // verify
+        verify(crowdsaleSpy).closeRollCall();
+        verify(crowdsaleSpy).InActiveCourse(this.teacher.getAddress(), _value);
+        assertTrue(_value.equals(crowdsaleScore.call("CurrentLesson")));
+        assertEquals("false",crowdsaleScore.call("isOpenRollCall"));
+    }
+    @Test
+    void closeRollCall_nonUsingTeacherAccount() {
+        Account alice = sm.createAccount(100);
+        crowdsaleScore.invoke( this.teacher,"openRollCall");
+        // verify
+         assertThrows(AssertionError.class, () -> 
+            crowdsaleScore.invoke( alice,"closeRollCall"));
+    }
+    @Test
+    void closeRollCall_withClosedClass() {
+        crowdsaleScore.invoke( this.teacher,"openRollCall");
+        crowdsaleScore.invoke( this.teacher,"closeRollCall");
+        // verify
+         assertThrows(AssertionError.class, () -> 
+            crowdsaleScore.invoke( this.teacher,"closeRollCall"));
     }*/
+   
+    @Test
+    void teacherWithdraw_withNonAccordantStudent() {
+        //create new student with 40icx in course, 60icx balance
+        Account alice = this.initStudent();
+        // increase the number of classes has passed
+        for (int i = 1; i <= this.numberOfLesson.intValue(); i++){
+            crowdsaleScore.invoke( this.teacher,"openRollCall");
+            crowdsaleScore.invoke( this.teacher,"closeRollCall");
+            System.out.println(i);
+        }
+        BigInteger  _value = this.teacher.getBalance().add(ICX.multiply(BigInteger.valueOf(40)));
+        crowdsaleScore.invoke( this.teacher,"withdraw");
+        // verify
+        verify(crowdsaleSpy).withdraw();
+        assertTrue(_value.equals(this.teacher.getBalance()));
+        assertEquals(BigInteger.ZERO, Account.getAccount(crowdsaleScore.getAddress()).getBalance());
+        assertEquals(BigInteger.ZERO, crowdsaleScore.call("balanceOf", alice.getAddress()));
+    }
+     @Test
+    void teacherWithdraw_withAccordantStudent() {
+        //create new student with 40icx in course, 60icx balance
+        Account alice = this.initStudent();
+        // increase the number of classes has passed
+        for (int i = 1; i <= this.numberOfLesson.intValue(); i++){
+            crowdsaleScore.invoke( this.teacher,"openRollCall");
+            crowdsaleScore.invoke( alice,"rollCall");
+            crowdsaleScore.invoke( this.teacher,"closeRollCall");
+            System.out.println(i);
+        }
+        BigInteger  _value = this.teacher.getBalance().add(ICX.multiply(BigInteger.valueOf(40)));
+        crowdsaleScore.invoke( this.teacher,"withdraw");
+        // verify
+        verify(crowdsaleSpy).withdraw();
+        assertTrue(_value.equals(this.teacher.getBalance()));
+        assertEquals(BigInteger.ZERO, Account.getAccount(crowdsaleScore.getAddress()).getBalance());
+        assertEquals(BigInteger.ZERO, crowdsaleScore.call("balanceOf", alice.getAddress()));
+    }
 /*
 
     @Test
