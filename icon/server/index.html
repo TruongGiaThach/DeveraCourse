@@ -157,6 +157,8 @@
                     }
                     if (payload.id === 3) {
                         console.log(payload);
+                        //const transactionResult = conService.getTransactionResult(payload.result).execute();
+                        //console.log(transactionResult);
                         getCurrentStateOfClass();
                         break;
                     }
@@ -174,7 +176,12 @@
                         break;
                     }
                     break;
-
+                    if (payload.id === 7) {
+                        console.log("after deposit");
+                        console.log(payload.result);
+                        break;
+                    }
+                    break;
                 default:
             }
         }
@@ -402,7 +409,7 @@
                         "jsonrpc": "2.0",
                         "method": "icx_sendTransaction",
                         "params": IconConverter.toRawTransaction(icxTransferData),
-                        "id": 1111
+                        "id": 7
                     }
                 }
             }))
