@@ -50,6 +50,10 @@
         var IconConverter = IconService.IconConverter
         var IconBuilder = IconService.IconBuilder
 
+        const provider = new IconService.HttpProvider('https://sejong.net.solidwallet.io/api/v3');
+        /* Create IconService instance */
+        const iconService = new IconService(provider);
+
         var currentAddress;
         var crowdsaleContractAddress;
 
@@ -81,7 +85,7 @@
         var classRollCall = document.getElementsByClassName("roll-call");
 
         window.addEventListener("ICONEX_RELAY_RESPONSE", eventHandler, false);
-        function eventHandler(event) {
+        async function eventHandler(event) {
             var type = event.detail.type
             var payload = event.detail.payload
             switch (type) {
@@ -134,7 +138,7 @@
                     }
                     if (payload.id === 2) {
                         console.log(payload.result);
-                        if (payload.result === "true"){
+                        if (payload.result === "true") {
                             stateOfClassTitle.innerHTML = "Class was opened";
                             buttonClose.style.display = "block";
                             buttonOpen.style.display = "none";
@@ -143,7 +147,7 @@
                             });
                             buttonWithdraw.disabled = true;
                         }
-                            
+
                         else {
                             stateOfClassTitle.innerHTML = "Class was closed";
                             buttonClose.style.display = "none";
@@ -157,8 +161,6 @@
                     }
                     if (payload.id === 3) {
                         console.log(payload);
-                        //const transactionResult = conService.getTransactionResult(payload.result).execute();
-                        //console.log(transactionResult);
                         getCurrentStateOfClass();
                         break;
                     }
@@ -173,18 +175,23 @@
                     }
                     if (payload.id === 6) {
                         console.log(payload);
-                        break;
+                        //const txObject = await iconService.getTransactionResult(payload.result).execute();
+                        const txObject = await iconService.getTransaction(payload.result).execute();
+                        console.log(txObject);
+                        
                     }
-                    break;
                     if (payload.id === 7) {
                         console.log("after deposit");
                         console.log(payload.result);
+
                         break;
                     }
                     break;
+
                 default:
             }
         }
+
 
         requestCrowdsale.onclick = function () {
             var callBuilder = new IconBuilder.CallBuilder;
@@ -267,7 +274,7 @@
             }))
         }
         buttonOpen.onclick = function () {
-            
+
             var callTransactionBuilder = new IconBuilder.CallTransactionBuilder;
             var requestOpenClass = callTransactionBuilder
                 .from(currentAddress)
@@ -292,7 +299,7 @@
             }))
         }
         buttonWithdraw.onclick = function () {
-            
+
             var callTransactionBuilder = new IconBuilder.CallTransactionBuilder;
             var requestWithdraw = callTransactionBuilder
                 .from(currentAddress)
@@ -317,7 +324,7 @@
             }))
         }
         buttonClose.onclick = function () {
-            
+
             var callTransactionBuilder = new IconBuilder.CallTransactionBuilder;
             var requestOpenClass = callTransactionBuilder
                 .from(currentAddress)
@@ -342,7 +349,7 @@
             }))
         }
         buttonRollCall.onclick = function () {
-            
+
             var callTransactionBuilder = new IconBuilder.CallTransactionBuilder;
             var request = callTransactionBuilder
                 .from(currentAddress)

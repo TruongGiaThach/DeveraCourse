@@ -1,17 +1,19 @@
 ﻿# Manual Test
+Go to SCORE folder
+
     ./gradlew build
     ./gradlew optimizedJar
     ./gradlew crowdsale:deployToSejong  -PkeystoreName=./godWallet.json -PkeystorePass=gochain
 
 ### Change ur current contract address to all of bellow statement
-register course with 10 ICX
+Register course with 10 ICX
     
     goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx transfer --to cx00ba43897d8a9e2363e6626250ed6fac00ff2eb7 --value 10000000000000000000 --key_store ./test.json --key_password btvn123456@ --nid 0x53 --step_limit 2000000000
 
     0x026e7d2edd5267da93fb186cb7ccd8825b4a3e49db0c09d75a916b255d197f04
         goloop rpc txresult --uri https://sejong.net.solidwallet.io/api/v3
 
-teacher open roll-call
+Teacher open roll-call
 
 	goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cx00ba43897d8a9e2363e6626250ed6fac00ff2eb7 \
 	    --method openRollCall \
@@ -20,7 +22,7 @@ teacher open roll-call
 
 "0x9e3d5329c36e015b698c38cbc6f4ef84026a2fc822b3e72c21a6b307e7c7d612"
 
-student rollcall
+Student rollcall
 
     goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cx00ba43897d8a9e2363e6626250ed6fac00ff2eb7 \
         --method rollCall \
@@ -28,20 +30,20 @@ student rollcall
         --nid 0x53 --step_limit 200000000
 
 
-teacher close roll-call
+Teacher close roll-call
 
     goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cx00ba43897d8a9e2363e6626250ed6fac00ff2eb7 \
         --method closeRollCall \
         --key_store godWallet.json --key_password gochain \
         --nid 0x53 --step_limit 200000000
 
-student withdraw when the course is not finnised
+Student withdraw when the course is not finnised
     goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cx00ba43897d8a9e2363e6626250ed6fac00ff2eb7 \
         --method withdraw \
         --key_store test.json --key_password btvn123456@ \
         --nid 0x53 --step_limit 200000000
 -----------second class--------------------------------------------
-teacher open roll-call
+Teacher open roll-call
 
 	goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cx00ba43897d8a9e2363e6626250ed6fac00ff2eb7 \
 	    --method openRollCall \
@@ -50,40 +52,40 @@ teacher open roll-call
 
 "0x9e3d5329c36e015b698c38cbc6f4ef84026a2fc822b3e72c21a6b307e7c7d612"
 
-student rollcall
+Student rollcall
 
     goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cx00ba43897d8a9e2363e6626250ed6fac00ff2eb7 \
         --method rollCall \
         --key_store test.json --key_password btvn123456@ \
         --nid 0x53 --step_limit 200000000
 
-student rollcall again
+Student rollcall again
 
     goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cx00ba43897d8a9e2363e6626250ed6fac00ff2eb7 \
         --method rollCall \
         --key_store test.json --key_password btvn123456@ \
         --nid 0x53 --step_limit 200000000
     
-teacher close roll-call
+Teacher close roll-call
 
     goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cx00ba43897d8a9e2363e6626250ed6fac00ff2eb7 \
         --method closeRollCall \
         --key_store godWallet.json --key_password gochain \
         --nid 0x53 --step_limit 200000000
-teacher try to open roll-call when maximum class
+Teacher try to open roll-call when maximum class
 
 	goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cx00ba43897d8a9e2363e6626250ed6fac00ff2eb7 \
 	    --method openRollCall \
 	    --key_store godWallet.json --key_password gochain \
 	    --nid 0x53 --step_limit 200000000
-student claim token 
+Student claim token 
 
     goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cx00ba43897d8a9e2363e6626250ed6fac00ff2eb7 \
         --method withdraw \
         --key_store test.json --key_password btvn123456@ \
         --nid 0x53 --step_limit 200000000
 
-teacher withdraw
+Teacher withdraw
 
     goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cx00ba43897d8a9e2363e6626250ed6fac00ff2eb7 \
         --method withdraw \
