@@ -1,92 +1,113 @@
 ﻿# Manual Test
+Go to SCORE folder
+
     ./gradlew build
     ./gradlew optimizedJar
     ./gradlew crowdsale:deployToSejong  -PkeystoreName=./godWallet.json -PkeystorePass=gochain
 
 ### Change ur current contract address to all of bellow statement
-register course with 10 ICX
+Register course with 10 ICX
     
-    goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx transfer --to cx00ba43897d8a9e2363e6626250ed6fac00ff2eb7 --value 10000000000000000000 --key_store ./test.json --key_password btvn123456@ --nid 0x53 --step_limit 2000000000
+    goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx transfer --to cxe8fbd4f9488f61f02ce8d30b355e027aae7562d4 --value 10000000000000000000 --key_store ./test.json --key_password btvn123456@ --nid 0x53 --step_limit 2000000000
 
     0x026e7d2edd5267da93fb186cb7ccd8825b4a3e49db0c09d75a916b255d197f04
         goloop rpc txresult --uri https://sejong.net.solidwallet.io/api/v3
 
-teacher open roll-call
+Teacher open roll-call
 
-	goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cx00ba43897d8a9e2363e6626250ed6fac00ff2eb7 \
+	goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cxe8fbd4f9488f61f02ce8d30b355e027aae7562d4 \
 	    --method openRollCall \
 	    --key_store godWallet.json --key_password gochain \
 	    --nid 0x53 --step_limit 200000000
 
 "0x9e3d5329c36e015b698c38cbc6f4ef84026a2fc822b3e72c21a6b307e7c7d612"
 
-student rollcall
+Student rollcall
 
-    goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cx00ba43897d8a9e2363e6626250ed6fac00ff2eb7 \
+    goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cxe8fbd4f9488f61f02ce8d30b355e027aae7562d4 \
         --method rollCall \
         --key_store test.json --key_password btvn123456@ \
         --nid 0x53 --step_limit 200000000
 
 
-teacher close roll-call
+Teacher close roll-call
 
-    goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cx00ba43897d8a9e2363e6626250ed6fac00ff2eb7 \
+    goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cxe8fbd4f9488f61f02ce8d30b355e027aae7562d4 \
         --method closeRollCall \
         --key_store godWallet.json --key_password gochain \
         --nid 0x53 --step_limit 200000000
 
-student withdraw when the course is not finnised
 
-	goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cx00ba43897d8a9e2363e6626250ed6fac00ff2eb7 \
-	--method withdraw \
-	--key_store test.json --key_password btvn123456@ \
-	--nid 0x53 --step_limit 200000000
------------second class--------------------------------------------
-teacher open roll-call
-
-	goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cx00ba43897d8a9e2363e6626250ed6fac00ff2eb7 \
-	    --method openRollCall \
-	    --key_store godWallet.json --key_password gochain \
-	    --nid 0x53 --step_limit 200000000
-
-"0x9e3d5329c36e015b698c38cbc6f4ef84026a2fc822b3e72c21a6b307e7c7d612"
-
-student rollcall
-
-    goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cx00ba43897d8a9e2363e6626250ed6fac00ff2eb7 \
-        --method rollCall \
-        --key_store test.json --key_password btvn123456@ \
-        --nid 0x53 --step_limit 200000000
-
-student rollcall again
-
-    goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cx00ba43897d8a9e2363e6626250ed6fac00ff2eb7 \
-        --method rollCall \
-        --key_store test.json --key_password btvn123456@ \
-        --nid 0x53 --step_limit 200000000
-    
-teacher close roll-call
-
-    goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cx00ba43897d8a9e2363e6626250ed6fac00ff2eb7 \
-        --method closeRollCall \
-        --key_store godWallet.json --key_password gochain \
-        --nid 0x53 --step_limit 200000000
-teacher try to open roll-call when maximum class
-
-	goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cx00ba43897d8a9e2363e6626250ed6fac00ff2eb7 \
-	    --method openRollCall \
-	    --key_store godWallet.json --key_password gochain \
-	    --nid 0x53 --step_limit 200000000
-student claim token 
-
-    goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cx00ba43897d8a9e2363e6626250ed6fac00ff2eb7 \
+Student withdraw when the course is not finnised
+    goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cxe8fbd4f9488f61f02ce8d30b355e027aae7562d4 \
         --method withdraw \
         --key_store test.json --key_password btvn123456@ \
         --nid 0x53 --step_limit 200000000
 
-teacher withdraw
+    {
+        "to": "cxe8fbd4f9488f61f02ce8d30b355e027aae7562d4",
+        "cumulativeStepUsed": "0x1fc49",
+        "stepUsed": "0x1fc49",
+        "stepPrice": "0x2e90edd00",
+        "eventLogs": [],
+        "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "status": "0x0",
+        "failure": {
+            "code": "0x20",
+            "message": "Reverted(0)"
+        },
+        "blockHash": "0x34cbc47c7ac6b252ee5e91ec295a890a826b0d0a496f24a14a324909012e78e1",
+        "blockHeight": "0x274d13",
+        "txIndex": "0x1",
+        "txHash": "0xa1a45fac6685af346a9c82cc521dfe09b08ee5adce103eb18b2359aeb737385c"
+    }
 
-    goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cx00ba43897d8a9e2363e6626250ed6fac00ff2eb7 \
+-----------second class--------------------------------------------
+Teacher open roll-call
+
+	goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cxe8fbd4f9488f61f02ce8d30b355e027aae7562d4 \
+	    --method openRollCall \
+	    --key_store godWallet.json --key_password gochain \
+	    --nid 0x53 --step_limit 200000000
+
+"0xdcd87570e09aae084a02a04e0eb2c38a0d51f8f1723bfb9ce15f3a750093df9e"
+
+Student rollcall
+
+    goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cxe8fbd4f9488f61f02ce8d30b355e027aae7562d4 \
+        --method rollCall \
+        --key_store test.json --key_password btvn123456@ \
+        --nid 0x53 --step_limit 200000000
+
+Student rollcall again
+
+    goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cxe8fbd4f9488f61f02ce8d30b355e027aae7562d4 \
+        --method rollCall \
+        --key_store test.json --key_password btvn123456@ \
+        --nid 0x53 --step_limit 200000000
+    
+Teacher close roll-call
+
+    goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cxe8fbd4f9488f61f02ce8d30b355e027aae7562d4 \
+        --method closeRollCall \
+        --key_store godWallet.json --key_password gochain \
+        --nid 0x53 --step_limit 200000000
+Teacher try to open roll-call when maximum class
+
+	goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cxe8fbd4f9488f61f02ce8d30b355e027aae7562d4 \
+	    --method openRollCall \
+	    --key_store godWallet.json --key_password gochain \
+	    --nid 0x53 --step_limit 200000000
+Student claim token 
+
+    goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cxe8fbd4f9488f61f02ce8d30b355e027aae7562d4 \
+        --method withdraw \
+        --key_store test.json --key_password btvn123456@ \
+        --nid 0x53 --step_limit 200000000
+
+Teacher withdraw
+
+    goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cxe8fbd4f9488f61f02ce8d30b355e027aae7562d4 \
         --method withdraw \
         --key_store godWallet.json --key_password gochain \
         --nid 0x53 --step_limit 200000000
