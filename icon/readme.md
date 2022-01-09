@@ -37,6 +37,7 @@ Teacher close roll-call
         --key_store godWallet.json --key_password gochain \
         --nid 0x53 --step_limit 200000000
 
+
 Student withdraw when the course is not finnised
     goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cxe8fbd4f9488f61f02ce8d30b355e027aae7562d4 \
         --method withdraw \
@@ -60,6 +61,7 @@ Student withdraw when the course is not finnised
         "txIndex": "0x1",
         "txHash": "0xa1a45fac6685af346a9c82cc521dfe09b08ee5adce103eb18b2359aeb737385c"
     }
+
 -----------second class--------------------------------------------
 Teacher open roll-call
 
