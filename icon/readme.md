@@ -39,6 +39,7 @@ Teacher close roll-call
 
 
 Student withdraw when the course is not finnised
+
     goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cxe8fbd4f9488f61f02ce8d30b355e027aae7562d4 \
         --method withdraw \
         --key_store test.json --key_password btvn123456@ \
@@ -63,6 +64,7 @@ Student withdraw when the course is not finnised
     }
 
 -----------second class--------------------------------------------
+
 Teacher open roll-call
 
 	goloop rpc --uri https://sejong.net.solidwallet.io/api/v3 sendtx call  --to cxe8fbd4f9488f61f02ce8d30b355e027aae7562d4 \
